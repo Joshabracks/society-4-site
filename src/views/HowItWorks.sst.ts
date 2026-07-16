@@ -27,8 +27,7 @@ export function HowItWorks(): string {
       <fieldset class="lcd-fieldset">
         <legend>Invite tip</legend>
         <p class="lcd-line">
-          An invite link (<code>society4://…</code>) encodes the workspace repo plus
-          <strong>only the inviter’s dial tip</strong> (their machine). After you connect
+          An invite link (<code>society4://…</code>) encodes the workspace repo plus&nbsp;<strong>only the inviter’s dial tip</strong> (their machine). After you connect
           and prove membership, you discover other peers through mesh gossip — not through
           a GitHub address book.
         </p>

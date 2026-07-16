@@ -2,9 +2,52 @@ export function Faq(): string {
   return `
     <section class="lcd-panel">
       <h1 class="lcd-title">FAQ</h1>
-      <p class="lcd-muted">Common join and connectivity issues.</p>
+      <p class="lcd-muted">Common join, install, and connectivity issues.</p>
 
       <div class="lcd-faq">
+        <details>
+          <summary>Are the installers signed?</summary>
+          <p>
+            No. Current releases are <strong>unsigned CI builds</strong> — not code-signed
+            and not Apple-notarized. Your OS may show a warning or block the first launch.
+            That is expected until we ship signed / notarized builds. See&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="getting-started")>
+              Getting started
+            </button>&nbsp;for per-OS install steps.
+          </p>
+        </details>
+
+        <details>
+          <summary>macOS says the app is damaged</summary>
+          <p>
+            That message is usually <strong>Gatekeeper quarantine</strong> on an unsigned
+            download, not a corrupt file.
+          </p>
+          <ol class="lcd-list">
+            <li>
+              Drag <strong>Society 4</strong> to <strong>Applications</strong> if you have
+              not already.
+            </li>
+            <li>
+              In Finder → Applications, <strong>Control-click</strong> (or right-click)&nbsp;<strong>Society 4</strong> → <strong>Open</strong> → confirm <strong>Open</strong>.
+            </li>
+            <li>
+              If that is unavailable: open the app once so macOS records the block, then go to&nbsp;<strong>System Settings → Privacy &amp; Security</strong>, choose&nbsp;<strong>Open Anyway</strong>, authenticate, and confirm <strong>Open</strong>.
+            </li>
+            <li>
+              <strong>Advanced fallback (Terminal)</strong> only if neither GUI path appears:&nbsp;<code>xattr -cr "/Applications/Society 4.app"</code>, then open the app again.
+            </li>
+          </ol>
+        </details>
+
+        <details>
+          <summary>Windows SmartScreen blocks the installer</summary>
+          <p>
+            Unsigned installers often trigger “Windows protected your PC” or an unknown-publisher
+            warning. Choose <strong>More info</strong>, then <strong>Run anyway</strong>&nbsp;(labels may vary by Windows version). Only continue if you downloaded Society 4
+            from this site’s Downloads page.
+          </p>
+        </details>
+
         <details>
           <summary>GitHub OAuth fails or never finishes</summary>
           <p>
@@ -48,14 +91,6 @@ export function Faq(): string {
             On Windows, check that a Private-profile allow rule exists for the mesh port.
             On macOS and Linux, allow inbound TCP on the listen port; on recent macOS also
             allow Local Network access for Society 4.
-          </p>
-        </details>
-
-        <details>
-          <summary>Are the installers signed?</summary>
-          <p>
-            No. Current releases are unsigned CI builds. Your OS may show a warning when you
-            open the MSI, DMG, or AppImage.
           </p>
         </details>
       </div>

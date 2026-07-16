@@ -414,7 +414,7 @@ button.lcd-ghost {
 
 .lcd-linkish {
   background: transparent;
-  color: var(--lcd-fg);
+  color: var(--signal-ok);
   border: none;
   box-shadow: none;
   filter: none;
@@ -432,6 +432,19 @@ button.lcd-ghost {
   filter: none;
   background: transparent;
   color: var(--signal-ok);
+  opacity: 0.85;
+}
+
+.lcd-signal.warn {
+  color: var(--signal-warn);
+}
+
+.lcd-os-heading {
+  margin: 18px 0 8px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--signal-ok);
+  text-shadow: var(--ink-text-shadow);
 }
 
 .lcd-faq details + details {

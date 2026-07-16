@@ -81,9 +81,37 @@ export function Downloads({ state }: Ctx): string {
     <section class="lcd-panel">
       <h1 class="lcd-title">Downloads</h1>
       <p class="lcd-line">
-        Major desktop releases for Windows, macOS, and Linux. Installers are
-        <strong>unsigned CI builds</strong> — your OS may warn on open.
+        Major desktop releases for Windows, macOS, and Linux.
       </p>
+
+      <fieldset class="lcd-fieldset">
+        <legend>Unsigned builds — read before install</legend>
+        <p class="lcd-line lcd-signal warn">
+          These installers are <strong>not code-signed&nbsp;</strong> and the macOS build is&nbsp;<strong>not notarized</strong>. Your OS may warn or block the first launch —
+          that is expected, not proof the download is corrupt.
+        </p>
+        <ul class="lcd-list">
+          <li>
+            <strong>Windows:</strong> SmartScreen / “Windows protected your PC” →
+            <strong>&nbsp;More info&nbsp;</strong> → <strong>&nbsp;Run anyway</strong> (wording may vary).
+          </li>
+          <li>
+            <strong>macOS:</strong> “damaged and can’t be opened” is usually Gatekeeper
+            quarantine. Prefer Finder: drag to Applications, then Control-click /
+            right-click → <strong>Open</strong>&nbsp;→&nbsp;<strong>Open</strong>. Or use&nbsp;<strong>System Settings → Privacy &amp; Security → Open Anyway</strong>&nbsp;after one blocked launch. Full steps on&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="getting-started")>
+              Getting started
+            </button>&nbsp;/&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="faq")>
+              FAQ
+            </button>.
+          </li>
+          <li>
+            <strong>Linux:</strong> mark an AppImage executable
+            (<code>chmod +x</code>) if needed; your desktop may still warn on an
+            untrusted binary.
+          </li>
+        </ul>
+      </fieldset>
+
       ${body}
       <div class="lcd-row">
         <button type="button" class="lcd-ghost" :click=loadReleases()>Refresh</button>

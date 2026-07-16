@@ -3,22 +3,60 @@ export function GettingStarted(): string {
     <section class="lcd-panel">
       <h1 class="lcd-title">Getting started</h1>
       <p class="lcd-line">
-        Install Society 4, then either <strong>create</strong> a workspace or
-        <strong>join</strong> with an invite. Both paths use GitHub OAuth in the browser.
+        Install Society 4, then either <strong>create</strong> a workspace or&nbsp;<strong>join</strong> with an invite. Both paths use GitHub OAuth in the browser.
       </p>
 
       <fieldset class="lcd-fieldset">
         <legend>1. Install</legend>
+        <p class="lcd-line lcd-signal warn">
+          Installers are <strong>unsigned CI builds</strong> (not code-signed / not notarized).
+          OS warnings on first launch are expected.
+        </p>
         <ol class="lcd-list">
           <li>
-            Open
-            <button type="button" class="lcd-linkish" :click=setView(target="downloads)">
+            Open&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="downloads)">
               Downloads
-            </button>
-            and get the installer for your OS (Windows MSI, macOS DMG, or Linux AppImage).
+            </button>&nbsp;and pick the asset whose name matches your OS
+            (<code>windows</code>, <code>macos</code>, or <code>linux</code> in the filename).
           </li>
-          <li>Install and launch Society 4. Builds are unsigned CI artifacts — your OS may warn.</li>
+        </ol>
+
+        <p class="lcd-line lcd-os-heading">Windows</p>
+        <ol class="lcd-list">
+          <li>Run the <code>.msi</code> (or <code>.exe</code>) installer.</li>
+          <li>
+            If SmartScreen / “Windows protected your PC” appears: choose&nbsp;<strong>More info</strong>, then <strong>Run anyway</strong>.
+          </li>
+          <li>Launch Society 4 and sign in with GitHub when prompted.</li>
+        </ol>
+
+        <p class="lcd-line lcd-os-heading">macOS</p>
+        <ol class="lcd-list">
+          <li>Open the <code>.dmg&nbsp;</code> and drag <strong>Society 4</strong> to <strong>Applications</strong>.</li>
+          <li>
+            In Finder → Applications, <strong>Control-click&nbsp;</strong> (or right-click)&nbsp;<strong>Society 4&nbsp;</strong> → <strong>Open</strong>, then confirm <strong>Open</strong>.
+            This is the preferred path when macOS says the app is damaged or can’t be opened —
+            that message is usually Gatekeeper quarantine, not a corrupt file.
+          </li>
+          <li>
+            If that option is unavailable: try opening the app once normally, then open&nbsp;<strong>System Settings → Privacy &amp; Security</strong>, find the blocked-app notice,
+            choose <strong>Open Anyway</strong>, authenticate, and confirm <strong>Open</strong>.
+            The button appears only after macOS has blocked a recent launch.
+          </li>
+          <li>
+            <strong>Advanced fallback (Terminal)</strong> — only if neither GUI path is offered:&nbsp;<code>xattr -cr "/Applications/Society 4.app"</code>, then open the app again.
+          </li>
           <li>Sign in with GitHub when prompted (device flow opens a browser verification page).</li>
+        </ol>
+
+        <p class="lcd-line lcd-os-heading">Linux</p>
+        <ol class="lcd-list">
+          <li>
+            For an AppImage: <code>chmod +x Society4-*.AppImage</code>, then run it.
+            For a <code>.deb</code>: install with your package manager.
+          </li>
+          <li>Your desktop may warn about an untrusted binary — proceed if you trust this release.</li>
+          <li>Sign in with GitHub when prompted.</li>
         </ol>
       </fieldset>
 
