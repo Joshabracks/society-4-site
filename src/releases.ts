@@ -32,6 +32,15 @@ export function platformForAsset(name: string): "windows" | "macos" | "linux" | 
   return "other";
 }
 
+/** Only desktop installers — never source archives or unrelated assets. */
+export function isInstallerAsset(name: string): boolean {
+  return platformForAsset(name) !== "other";
+}
+
+export function installerAssets(assets: GhAsset[]): GhAsset[] {
+  return assets.filter((a) => isInstallerAsset(a.name));
+}
+
 export function formatBytes(size: number): string {
   if (size < 1024) return `${size} B`;
   if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;

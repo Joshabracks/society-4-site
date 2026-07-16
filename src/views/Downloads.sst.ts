@@ -1,6 +1,7 @@
 import type { ReleasesState } from "../releases";
 import {
   formatBytes,
+  installerAssets,
   platformForAsset,
   platformLabel,
   type GhRelease,
@@ -9,11 +10,12 @@ import {
 type Ctx = { state: { data: { releases: ReleasesState } } };
 
 function assetRows(release: GhRelease): string {
-  if (!release.assets.length) {
+  const assets = installerAssets(release.assets);
+  if (!assets.length) {
     return `<p class="lcd-muted">No installer assets on this release.</p>`;
   }
   const preferred = ["windows", "macos", "linux", "other"] as const;
-  const sorted = [...release.assets].sort((a, b) => {
+  const sorted = [...assets].sort((a, b) => {
     return (
       preferred.indexOf(platformForAsset(a.name)) -
       preferred.indexOf(platformForAsset(b.name))

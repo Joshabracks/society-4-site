@@ -38,4 +38,12 @@ Vite `base` is `/society-4-site/` for project Pages.
 
 ## Releases
 
-Public download assets live on this repo’s Releases (not in `dist/`). The private `society-4` Desktop Release workflow mirrors installers here using the `SOCIETY4_SITE_RELEASE_TOKEN` secret.
+Public download assets live on this repo’s Releases (not in `dist/`). Each release
+attaches **only** the three platform installers (Windows / macOS / Linux).
+
+Release **tags** point at the stub `release-heads` branch (not `main`), so GitHub’s
+automatic “Source code” zip/tar is a one-file stub — not the website tree and not the
+private Society 4 app.
+
+The private `society-4` Desktop Release workflow mirrors installers here using the
+`SOCIETY4_SITE_RELEASE_TOKEN` secret (`target_commitish: release-heads`).
