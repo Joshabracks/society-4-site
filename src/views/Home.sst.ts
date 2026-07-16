@@ -16,7 +16,10 @@ export function Home(): string {
         </button>
       </div>
       <p class="lcd-muted">
-        Desktop builds for Windows, macOS, and Linux. Installers are unsigned CI artifacts.
+        Desktop installers are unsigned CI builds — your OS may warn on first launch.
+        See&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="downloads)">
+          Downloads
+        </button>&nbsp;for OS-specific install notes.
       </p>
     </section>
   `;
