@@ -1,3 +1,5 @@
+import { RELEASES_API } from "./config";
+
 export type GhAsset = {
   id: number;
   name: string;
@@ -54,19 +56,15 @@ let inflight: Promise<GhRelease[]> | null = null;
 export function fetchReleases(): Promise<GhRelease[]> {
   if (!inflight) {
     inflight = (async () => {
-      const res = await fetch(
-        "https://api.github.com/repos/Joshabracks/society-4-site/releases",
-        {
-          headers: { Accept: "application/vnd.github+json" },
-        },
-      );
+      const res = await fetch(RELEASES_API, {
+        headers: { Accept: "application/vnd.github+json" },
+      });
       if (!res.ok) {
         throw new Error(`GitHub Releases API returned ${res.status}`);
       }
       const data = (await res.json()) as GhRelease[];
       return Array.isArray(data) ? data : [];
     })().finally(() => {
-      // Allow refresh on next call after settle.
       setTimeout(() => {
         inflight = null;
       }, 0);
