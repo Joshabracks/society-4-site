@@ -1,29 +1,35 @@
-import type { ReleasesState } from "../releases";
+import type { ReleasesState, VersionRelease, PlatformId, GhAsset } from "../releases";
 import {
   formatBytes,
-  installerAssets,
-  platformForAsset,
   platformLabel,
-  type GhRelease,
 } from "../releases";
 
 type Ctx = { state: { data: { releases: ReleasesState } } };
 
-function assetRows(release: GhRelease): string {
-  const assets = installerAssets(release.assets);
-  if (!assets.length) {
-    return `<p class="lcd-muted">No installer assets on this release.</p>`;
+function flatAssets(v: VersionRelease): { platform: PlatformId; asset: GhAsset }[] {
+  const preferred: PlatformId[] = ["windows", "macos", "linux"];
+  const rows: { platform: PlatformId; asset: GhAsset }[] = [];
+  for (const platform of preferred) {
+    const list = v.assetsByPlatform[platform];
+    if (!list?.length) continue;
+    for (const asset of list) {
+      rows.push({ platform, asset });
+    }
   }
-  const preferred = ["windows", "macos", "linux", "other"] as const;
-  const sorted = [...assets].sort((a, b) => {
-    return (
-      preferred.indexOf(platformForAsset(a.name)) -
-      preferred.indexOf(platformForAsset(b.name))
-    );
-  });
-  return sorted
-    .map((asset) => {
-      const plat = platformLabel(platformForAsset(asset.name));
+  return rows;
+}
+
+function assetRows(v: VersionRelease): string {
+  const rows = flatAssets(v);
+  if (!rows.length) {
+    return `<p class="lcd-muted">No installer assets for this version yet.</p>`;
+  }
+  const missing = (["windows", "macos", "linux"] as PlatformId[]).filter(
+    (p) => !v.platforms.includes(p),
+  );
+  const links = rows
+    .map(({ platform, asset }) => {
+      const plat = platformLabel(platform);
       return `
         <div class="lcd-asset-row">
           <div>
@@ -35,6 +41,21 @@ function assetRows(release: GhRelease): string {
       `;
     })
     .join("");
+  const pending = missing.length
+    ? `<p class="lcd-muted">Not published yet: ${missing.map(platformLabel).join(", ")}</p>`
+    : "";
+  return `${links}${pending}`;
+}
+
+function versionBlock(v: VersionRelease, latest: boolean): string {
+  const legend = latest ? `Latest — ${v.label}` : v.label;
+  return `
+    <fieldset class="lcd-fieldset">
+      <legend>${legend}</legend>
+      <p class="lcd-muted">Society 4 ${v.label}</p>
+      ${assetRows(v)}
+    </fieldset>
+  `;
 }
 
 export function Downloads({ state }: Ctx): string {
@@ -48,32 +69,13 @@ export function Downloads({ state }: Ctx): string {
   } else if (rel.status === "empty") {
     body = `
       <p class="lcd-line">No public releases yet.</p>
-      <p class="lcd-muted">Check back after the first mirrored desktop cut is published.</p>
+      <p class="lcd-muted">Check back after the first desktop cut is published.</p>
     `;
   } else if (rel.status === "ok") {
-    const latest = rel.releases[0];
-    const older = rel.releases.slice(1);
+    const [latest, ...older] = rel.versions;
     body = `
-      <fieldset class="lcd-fieldset">
-        <legend>Latest — ${latest.tag_name}</legend>
-        <p class="lcd-muted">${latest.name || latest.tag_name}</p>
-        ${assetRows(latest)}
-      </fieldset>
-      ${
-        older.length
-          ? older
-              .map(
-                (r: GhRelease) => `
-        <fieldset class="lcd-fieldset">
-          <legend>${r.tag_name}</legend>
-          <p class="lcd-muted">${r.name || r.tag_name}</p>
-          ${assetRows(r)}
-        </fieldset>
-      `,
-              )
-              .join("")
-          : ""
-      }
+      ${versionBlock(latest, true)}
+      ${older.map((v) => versionBlock(v, false)).join("")}
     `;
   }
 

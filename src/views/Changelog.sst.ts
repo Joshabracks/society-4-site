@@ -1,5 +1,5 @@
-import type { ReleasesState } from "../releases";
-import type { GhRelease } from "../releases";
+import type { ReleasesState, VersionRelease } from "../releases";
+import { platformLabel } from "../releases";
 
 type Ctx = { state: { data: { releases: ReleasesState } } };
 
@@ -10,22 +10,30 @@ function escapeHtml(s: string): string {
     .replace(/>/g, "&gt;");
 }
 
-function releaseBlock(r: GhRelease): string {
-  const title = escapeHtml(r.name || r.tag_name);
-  const body = r.body ? escapeHtml(r.body.trim()) : "No release notes.";
-  const when = r.published_at
-    ? new Date(r.published_at).toLocaleDateString(undefined, {
+function releaseBlock(v: VersionRelease): string {
+  const title = escapeHtml(`Society 4 ${v.label}`);
+  const body = v.notes ? escapeHtml(v.notes) : "No release notes.";
+  const when = v.published_at
+    ? new Date(v.published_at).toLocaleDateString(undefined, {
         year: "numeric",
         month: "short",
         day: "numeric",
       })
     : "";
+  const platforms = v.platforms.map(platformLabel).join(", ");
+  const links = v.html_urls
+    .map(
+      (url) =>
+        `<a href="${url}" target="_blank" rel="noopener">View on GitHub</a>`,
+    )
+    .join(" · ");
   return `
     <fieldset class="lcd-fieldset">
-      <legend>${escapeHtml(r.tag_name)}</legend>
+      <legend>${escapeHtml(v.label)}</legend>
       <p class="lcd-line"><strong>${title}</strong>${when ? ` · ${when}` : ""}</p>
+      <p class="lcd-muted">Platforms: ${escapeHtml(platforms)}</p>
       <pre class="lcd-release-body">${body}</pre>
-      <p class="lcd-muted"><a href="${r.html_url}" target="_blank" rel="noopener">View on GitHub</a></p>
+      <p class="lcd-muted">${links}</p>
     </fieldset>
   `;
 }
@@ -41,13 +49,13 @@ export function Changelog({ state }: Ctx): string {
   } else if (rel.status === "empty") {
     body = `<p class="lcd-line">No releases published yet.</p>`;
   } else if (rel.status === "ok") {
-    body = rel.releases.map(releaseBlock).join("");
+    body = rel.versions.map(releaseBlock).join("");
   }
 
   return `
     <section class="lcd-panel">
       <h1 class="lcd-title">Changelog</h1>
-      <p class="lcd-muted">Notes from public mirrored releases.</p>
+      <p class="lcd-muted">Notes from public desktop releases (grouped by version).</p>
       ${body}
       <div class="lcd-row">
         <button type="button" class="lcd-ghost" :click=loadReleases()>Refresh</button>

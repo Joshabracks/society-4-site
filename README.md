@@ -8,7 +8,7 @@ Marketing and user docs for **Society 4**, served via GitHub Pages.
 
 - [State Street](https://joshabracks.github.io/State-Street/) SPA
 - LCD Gray theme (light / dark), matching the desktop app
-- Desktop installers published as **GitHub Releases** on this public repo (mirrored from the private `society-4` release workflow)
+- Desktop installers published as **GitHub Releases** on this public repo (per-OS tags from local `npm run release`, or legacy multi-asset `v*` mirrors)
 
 ## Develop
 
@@ -24,6 +24,20 @@ npm run preview
 
 Vite `base` is `/society-4-site/` for project Pages.
 
+### Version bump + deploy
+
+```bash
+# stage working tree + bump + conventional commit on origin/dev
+npm run push:fix -- "tweak downloads copy"
+npm run push:feat -- "group per-OS releases"
+npm run push:breaking -- "rename hash routes"
+
+# after merging that bump to main:
+npm run deploy
+```
+
+`deploy` requires local `package.json` version === **`origin/main`**, runs `npm run build`, then triggers the **Pages** workflow via `gh workflow run` (still uses Actions minutes). Requires `gh` auth and a `dev` branch for `push:*`.
+
 ## Pages
 
 | Hash | Page |
@@ -38,12 +52,12 @@ Vite `base` is `/society-4-site/` for project Pages.
 
 ## Releases
 
-Public download assets live on this repo’s Releases (not in `dist/`). Each release
-attaches **only** the three platform installers (Windows / macOS / Linux).
+Public download assets live on this repo’s Releases (not in `dist/`).
 
-Release **tags** point at the stub `release-heads` branch (not `main`), so GitHub’s
-automatic “Source code” zip/tar is a one-file stub — not the website tree and not the
-private Society 4 app.
+**Per-OS tags** (preferred local flow): `windows0.3.1`, `macOS0.3.1`, `linux0.3.1` — each holds that platform’s installer. The site groups them by version so Downloads/Changelog show one “0.3.1” entry with up to three platforms.
 
-The private `society-4` Desktop Release workflow mirrors installers here using the
-`SOCIETY4_SITE_RELEASE_TOKEN` secret (`target_commitish: release-heads`).
+**Legacy:** a single `v0.3.1` release with all three installers attached is still understood.
+
+Release **tags** point at the stub `release-heads` branch (not `main`), so GitHub’s automatic “Source code” zip/tar is a one-file stub — not the website tree and not the private Society 4 app.
+
+Publish installers from the private desktop repo with `npm run release` (see `society4/apps/desktop/README.md`), using `SOCIETY4_SITE_RELEASE_TOKEN` or `gh` auth.
