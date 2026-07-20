@@ -1,7 +1,7 @@
 import { State } from "@state-street/state-street";
 import { applyDocumentTheme, loadStoredMode } from "./theme";
 import { initialData, parseHash, type ViewId } from "./state";
-import { fetchReleases } from "./releases";
+import { fetchVersionReleases } from "./releases";
 import { AppRoot, Nav } from "./app.sst";
 import { Home } from "./views/Home.sst";
 import { HowItWorks } from "./views/HowItWorks.sst";
@@ -43,12 +43,12 @@ function needsReleases(view: ViewId): boolean {
 function loadReleases({ state }: MethodCtx): void {
   if (state.data.releases.status === "loading") return;
   state.data.releases = { status: "loading" };
-  fetchReleases()
-    .then((releases) => {
+  fetchVersionReleases()
+    .then((versions) => {
       state.data.releases =
-        releases.length === 0
+        versions.length === 0
           ? { status: "empty" }
-          : { status: "ok", releases };
+          : { status: "ok", versions };
     })
     .catch((err: unknown) => {
       const message = err instanceof Error ? err.message : String(err);

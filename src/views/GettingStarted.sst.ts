@@ -16,8 +16,8 @@ export function GettingStarted(): string {
           <li>
             Open&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="downloads)">
               Downloads
-            </button>&nbsp;and pick the asset whose name matches your OS
-            (<code>windows</code>, <code>macos</code>, or <code>linux</code> in the filename).
+            </button>&nbsp;and pick your OS (Windows / macOS / Linux). Installer filenames also include
+            <code>windows</code>, <code>macos</code>, or <code>linux</code>.
           </li>
         </ol>
 

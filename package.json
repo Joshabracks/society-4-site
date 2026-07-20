@@ -1,12 +1,16 @@
 {
   "name": "society-4-site",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "push:fix": "node scripts/push.mjs fix",
+    "push:feat": "node scripts/push.mjs feat",
+    "push:breaking": "node scripts/push.mjs breaking",
+    "deploy": "node scripts/deploy.mjs"
   },
   "dependencies": {
     "@state-street/state-street": "^2.3.1"
