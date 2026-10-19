@@ -8,7 +8,7 @@ Marketing and user docs for **Society 4**, served via GitHub Pages.
 
 - [State Street](https://joshabracks.github.io/State-Street/) SPA
 - LCD Gray theme (light / dark), matching the desktop app
-- Desktop installers published as **GitHub Releases** on this public repo (per-OS tags from local `npm run release`, or legacy multi-asset `v*` mirrors)
+- Installers published as **GitHub Releases** on this public repo (per-OS tags from local `npm run release`, e.g. `windows0.4.0`, `android0.4.0`, or legacy multi-asset `v*` mirrors)
 
 ## Develop
 
@@ -43,9 +43,9 @@ npm run deploy
 | Hash | Page |
 |------|------|
 | `#home` | Landing |
-| `#how-it-works` | Peer mesh vs GitHub membership |
-| `#getting-started` | Create / join onboarding |
-| `#downloads` | Installers from Releases API |
+| `#how-it-works` | Accounts, membership, messages, invite links, networks, backups |
+| `#getting-started` | Install, set up an account, create or join a workspace |
+| `#downloads` | Installers (desktop and Android APK) from the Releases API |
 | `#faq` | Troubleshooting |
 | `#privacy` | Privacy & security |
 | `#changelog` | Release notes |

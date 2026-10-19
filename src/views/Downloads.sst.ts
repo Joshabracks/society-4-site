@@ -7,7 +7,7 @@ import {
 type Ctx = { state: { data: { releases: ReleasesState } } };
 
 function flatAssets(v: VersionRelease): { platform: PlatformId; asset: GhAsset }[] {
-  const preferred: PlatformId[] = ["windows", "macos", "linux"];
+  const preferred: PlatformId[] = ["windows", "macos", "linux", "android"];
   const rows: { platform: PlatformId; asset: GhAsset }[] = [];
   for (const platform of preferred) {
     const list = v.assetsByPlatform[platform];
@@ -19,12 +19,12 @@ function flatAssets(v: VersionRelease): { platform: PlatformId; asset: GhAsset }
   return rows;
 }
 
-function assetRows(v: VersionRelease): string {
+function assetRows(v: VersionRelease, latest: boolean): string {
   const rows = flatAssets(v);
   if (!rows.length) {
     return `<p class="lcd-muted">No installer assets for this version yet.</p>`;
   }
-  const missing = (["windows", "macos", "linux"] as PlatformId[]).filter(
+  const missing = (["windows", "macos", "linux", "android"] as PlatformId[]).filter(
     (p) => !v.platforms.includes(p),
   );
   const links = rows
@@ -33,7 +33,7 @@ function assetRows(v: VersionRelease): string {
       return `
         <div class="lcd-asset-row">
           <div>
-            <p class="lcd-line"><strong>${plat}</strong> — ${asset.name}</p>
+            <p class="lcd-line"><strong>${plat} </strong>— ${asset.name}</p>
             <p class="lcd-muted">${formatBytes(asset.size)}</p>
           </div>
           <a href="${asset.browser_download_url}">Download</a>
@@ -41,7 +41,8 @@ function assetRows(v: VersionRelease): string {
       `;
     })
     .join("");
-  const pending = missing.length
+  // Only for the latest: older versions predate some platforms (Android).
+  const pending = latest && missing.length
     ? `<p class="lcd-muted">Not published yet: ${missing.map(platformLabel).join(", ")}</p>`
     : "";
   return `${links}${pending}`;
@@ -53,7 +54,7 @@ function versionBlock(v: VersionRelease, latest: boolean): string {
     <fieldset class="lcd-fieldset">
       <legend>${legend}</legend>
       <p class="lcd-muted">Society 4 ${v.label}</p>
-      ${assetRows(v)}
+      ${assetRows(v, latest)}
     </fieldset>
   `;
 }
@@ -83,7 +84,7 @@ export function Downloads({ state }: Ctx): string {
     <section class="lcd-panel">
       <h1 class="lcd-title">Downloads</h1>
       <p class="lcd-line">
-        Major desktop releases for Windows, macOS, and Linux.
+        Releases for Windows, macOS, Linux and Android.
       </p>
 
       <fieldset class="lcd-fieldset">
@@ -94,11 +95,11 @@ export function Downloads({ state }: Ctx): string {
         </p>
         <ul class="lcd-list">
           <li>
-            <strong>Windows:</strong> SmartScreen / “Windows protected your PC” →
-            <strong>&nbsp;More info&nbsp;</strong> → <strong>&nbsp;Run anyway</strong> (wording may vary).
+            <strong>Windows: </strong>SmartScreen / “Windows protected your PC” →
+            <strong>&nbsp;More info&nbsp;</strong> → <strong>&nbsp;Run anyway </strong>(wording may vary).
           </li>
           <li>
-            <strong>macOS:</strong> “damaged and can’t be opened” is usually Gatekeeper
+            <strong>macOS: </strong>“damaged and can’t be opened” is usually Gatekeeper
             quarantine. Prefer Finder: drag to Applications, then Control-click /
             right-click → <strong>Open</strong>&nbsp;→&nbsp;<strong>Open</strong>. Or use&nbsp;<strong>System Settings → Privacy &amp; Security → Open Anyway</strong>&nbsp;after one blocked launch. Full steps on&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="getting-started")>
               Getting started
@@ -107,9 +108,13 @@ export function Downloads({ state }: Ctx): string {
             </button>.
           </li>
           <li>
-            <strong>Linux:</strong> mark an AppImage executable
+            <strong>Linux: </strong>mark an AppImage executable
             (<code>chmod +x</code>) if needed; your desktop may still warn on an
             untrusted binary.
+          </li>
+          <li>
+            <strong>Android: </strong>open the <code>.apk</code>&nbsp;on the phone; Android asks
+            once to allow installs from your browser or files app.
           </li>
         </ul>
       </fieldset>

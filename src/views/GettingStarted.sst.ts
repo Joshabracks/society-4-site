@@ -3,112 +3,107 @@ export function GettingStarted(): string {
     <section class="lcd-panel">
       <h1 class="lcd-title">Getting started</h1>
       <p class="lcd-line">
-        Install Society 4, then either <strong>create</strong> a workspace or&nbsp;<strong>join</strong> with an invite. Both paths use GitHub OAuth in the browser.
+        Install Society 4, set up your account (the app walks you through it), then
+        create a workspace or join one with an invite link. No sign-up, no email.
       </p>
 
       <fieldset class="lcd-fieldset">
         <legend>1. Install</legend>
         <p class="lcd-line lcd-signal warn">
-          Installers are <strong>unsigned CI builds</strong> (not code-signed / not notarized).
-          OS warnings on first launch are expected.
+          Installers aren't <strong>code-signed </strong>yet (and the macOS build isn't
+          notarized). Warnings on first launch are expected.
         </p>
-        <ol class="lcd-list">
-          <li>
-            Open&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="downloads)">
-              Downloads
-            </button>&nbsp;and pick your OS (Windows / macOS / Linux). Installer filenames also include
-            <code>windows</code>, <code>macos</code>, or <code>linux</code>.
-          </li>
-        </ol>
+        <p class="lcd-line">
+          Open&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="downloads")>Downloads</button>&nbsp;and pick your platform.
+        </p>
 
         <p class="lcd-line lcd-os-heading">Windows</p>
         <ol class="lcd-list">
-          <li>Run the <code>.msi</code> (or <code>.exe</code>) installer.</li>
-          <li>
-            If SmartScreen / “Windows protected your PC” appears: choose&nbsp;<strong>More info</strong>, then <strong>Run anyway</strong>.
-          </li>
-          <li>Launch Society 4 and sign in with GitHub when prompted.</li>
+          <li>Run the <code>.msi </code>(or <code>.exe</code>) installer.</li>
+          <li>If SmartScreen says "Windows protected your PC": choose <strong>More info</strong>, then <strong>Run anyway</strong>.</li>
         </ol>
 
         <p class="lcd-line lcd-os-heading">macOS</p>
         <ol class="lcd-list">
-          <li>Open the <code>.dmg&nbsp;</code> and drag <strong>Society 4</strong> to <strong>Applications</strong>.</li>
+          <li>Open the <code>.dmg </code>and drag <strong>Society 4 </strong>to <strong>Applications</strong>.</li>
           <li>
-            In Finder → Applications, <strong>Control-click&nbsp;</strong> (or right-click)&nbsp;<strong>Society 4&nbsp;</strong> → <strong>Open</strong>, then confirm <strong>Open</strong>.
-            This is the preferred path when macOS says the app is damaged or can’t be opened —
-            that message is usually Gatekeeper quarantine, not a corrupt file.
+            In Finder → Applications, <strong>Control-click </strong>(or right-click)
+            <strong>Society 4 </strong>→ <strong>Open</strong>, then confirm <strong>Open</strong>.
+            If macOS says the app is damaged, that's usually Gatekeeper quarantine, not a corrupt file.
           </li>
           <li>
-            If that option is unavailable: try opening the app once normally, then open&nbsp;<strong>System Settings → Privacy &amp; Security</strong>, find the blocked-app notice,
-            choose <strong>Open Anyway</strong>, authenticate, and confirm <strong>Open</strong>.
-            The button appears only after macOS has blocked a recent launch.
+            If that isn't offered: open the app once, then go to <strong>System Settings → Privacy &amp; Security </strong>and choose <strong>Open Anyway</strong>.
           </li>
           <li>
-            <strong>Advanced fallback (Terminal)</strong> — only if neither GUI path is offered:&nbsp;<code>xattr -cr "/Applications/Society 4.app"</code>, then open the app again.
+            Last resort (Terminal): <code>xattr -cr "/Applications/Society 4.app"</code>, then open it again.
           </li>
-          <li>Sign in with GitHub when prompted (device flow opens a browser verification page).</li>
         </ol>
 
         <p class="lcd-line lcd-os-heading">Linux</p>
         <ol class="lcd-list">
-          <li>
-            For an AppImage: <code>chmod +x Society4-*.AppImage</code>, then run it.
-            For a <code>.deb</code>: install with your package manager.
-          </li>
-          <li>Your desktop may warn about an untrusted binary — proceed if you trust this release.</li>
-          <li>Sign in with GitHub when prompted.</li>
+          <li>AppImage: <code>chmod +x Society4-*.AppImage</code>, then run it. A <code>.deb</code>: install with your package manager.</li>
         </ol>
-      </fieldset>
 
-      <fieldset class="lcd-fieldset">
-        <legend>Create a workspace</legend>
+        <p class="lcd-line lcd-os-heading">Android</p>
         <ol class="lcd-list">
-          <li>
-            On GitHub, create an <strong>empty private repository</strong> for the team and
-            invite collaborators who should be members.
-          </li>
-          <li>In Society 4, open or bind that repository as the workspace (first peer online).</li>
-          <li>
-            When others are ready, use <strong>Generate invite link</strong> while you are
-            online so the invite includes a live dial tip.
-          </li>
+          <li>Download the <code>.apk </code>on the phone and open it. Android asks once to allow installs from your browser or files app.</li>
+          <li>When the app asks, allow notifications: it then stays connected in the background, and DMs and mentions notify you.</li>
         </ol>
-        <p class="lcd-muted">
-          Membership is the private repo ACL. Chat history and keys stay on the peer mesh
-          (plus optional sparse encrypted backup on the repo).
-        </p>
       </fieldset>
 
       <fieldset class="lcd-fieldset">
-        <legend>Join via invite</legend>
+        <legend>2. Set up your account</legend>
+        <p class="lcd-line">The first time you open Society 4 it asks whether you've used it before.</p>
+        <p class="lcd-line"><strong>New here:</strong></p>
         <ol class="lcd-list">
-          <li>Ensure you have been granted access to the workspace’s private GitHub repo.</li>
-          <li>
-            Open the <code>society4://…</code> invite (or paste it in the app). Society 4
-            completes browser GitHub login and checks repo access.
-          </li>
-          <li>
-            The client dials the <strong>inviter tip</strong> in the link, authenticates on
-            the mesh, then learns other peers via gossip.
-          </li>
+          <li>Create your account. You're shown your <strong>recovery phrase</strong>: twelve words that are the only way back into your account if you lose your device.</li>
+          <li>Save them somewhere secure (the app can copy them), then type back the three it highlights.</li>
+          <li>Choose the name people will see. You can change it per workspace later.</li>
+          <li>Optionally set up an account backup: a password, then a file, a drive, or another place to keep it.</li>
         </ol>
-        <p class="lcd-muted">
-          If the inviter goes offline before you dial, wait for them (or get a fresh invite
-          from someone who is online).
-        </p>
-      </fieldset>
-
-      <fieldset class="lcd-fieldset">
-        <legend>Mesh / firewall</legend>
+        <p class="lcd-line"><strong>Used it before: </strong>bring your account to this device in one of four ways.</p>
         <ul class="lcd-list">
+          <li><strong>Link to one of my devices: </strong>approve it from a device that already has your account (it shows six words to check).</li>
+          <li><strong>Enter my recovery phrase.</strong></li>
+          <li><strong>Restore from an account backup, </strong>with its password.</li>
+          <li><strong>Recover through a workspace </strong>whose admins keep a backup for you.</li>
+        </ul>
+      </fieldset>
+
+      <fieldset class="lcd-fieldset">
+        <legend>3. Create a workspace</legend>
+        <ol class="lcd-list">
+          <li>Choose <strong>Create a workspace </strong>and give it a name.</li>
+          <li>Optionally make it one where each member has an identity used only there.</li>
           <li>
-            <strong>Windows:</strong> the app may add a Private-profile firewall allow rule
-            for the mesh TCP port.
+            Invite people from <strong>Settings → Active workspace → Invite people</strong>:
+            <strong>Create invite link </strong>copies it straight to the clipboard. Under
+            <strong>Link options </strong>you can let several people use it, set how long it
+            works, require approval, or lock it with a code you send separately.
           </li>
+          <li>Send the link however you like: a message, email, or the Share button on a phone.</li>
+        </ol>
+      </fieldset>
+
+      <fieldset class="lcd-fieldset">
+        <legend>4. Join with an invite link</legend>
+        <ol class="lcd-list">
+          <li>Open the <code>society4:// </code>link, or paste it in <strong>Join</strong>.</li>
+          <li>Check the workspace's name, and enter the code if the link has one.</li>
           <li>
-            <strong>macOS / Linux:</strong> allow inbound TCP on the listen port yourself if
-            peers cannot dial you. On newer macOS, grant Local Network permission.
+            Choose <strong>Join</strong>. If the link needs approval, you'll see "Joining…"
+            until an admin lets you in. If it takes more than a minute, the people who can
+            approve may be offline: contact the person who sent you the link.
           </li>
+        </ol>
+      </fieldset>
+
+      <fieldset class="lcd-fieldset">
+        <legend>Firewalls and networks</legend>
+        <ul class="lcd-list">
+          <li><strong>Windows: </strong>the app adds a firewall rule for its own port on private networks.</li>
+          <li><strong>macOS and Linux: </strong>if others can't reach you directly, allow incoming connections for Society 4. On recent macOS, allow Local Network access.</li>
+          <li>On mobile data or behind a strict router, a member who can be reached from anywhere relays for you automatically.</li>
         </ul>
       </fieldset>
 

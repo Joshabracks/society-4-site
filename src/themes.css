@@ -55,17 +55,9 @@
 }
 
 [data-mode="dark"] {
-  --ink-text-shadow:
-    0 0 1px var(--lcd-fg),
-    0 0 4px color-mix(in srgb, var(--lcd-fg) 40%, transparent),
-    0 0 8px color-mix(in srgb, var(--lcd-fg) 18%, transparent);
-  --ink-outline-shadow:
-    0 0 3px color-mix(in srgb, var(--lcd-fg) 35%, transparent),
-    0 0 6px color-mix(in srgb, var(--lcd-fg) 18%, transparent);
-  --ink-filter: drop-shadow(
-      0 0 2px color-mix(in srgb, var(--lcd-fg) 50%, transparent)
-    )
-    drop-shadow(0 0 5px color-mix(in srgb, var(--lcd-fg) 22%, transparent));
+  --ink-text-shadow: none;
+  --ink-outline-shadow: none;
+  --ink-filter: none;
 }
 
 *,

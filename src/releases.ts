@@ -18,7 +18,7 @@ export type GhRelease = {
   assets: GhAsset[];
 };
 
-export type PlatformId = "windows" | "macos" | "linux";
+export type PlatformId = "windows" | "macos" | "linux" | "android";
 
 /** One desktop version, possibly merged from several per-OS GitHub Releases. */
 export type VersionRelease = {
@@ -43,10 +43,11 @@ export function platformForAsset(name: string): PlatformId | "other" {
   if (n.includes("windows") || n.endsWith(".msi") || n.endsWith(".exe")) return "windows";
   if (n.includes("macos") || n.endsWith(".dmg")) return "macos";
   if (n.includes("linux") || n.endsWith(".appimage") || n.endsWith(".deb")) return "linux";
+  if (n.includes("android") || n.endsWith(".apk")) return "android";
   return "other";
 }
 
-/** Only desktop installers — never source archives or unrelated assets. */
+/** Only installers (desktop, and the Android APK) — never source archives or unrelated assets. */
 export function isInstallerAsset(name: string): boolean {
   return platformForAsset(name) !== "other";
 }
@@ -69,12 +70,14 @@ export function platformLabel(p: PlatformId | "other"): string {
       return "macOS";
     case "linux":
       return "Linux";
+    case "android":
+      return "Android";
     default:
       return "Other";
   }
 }
 
-const PER_OS_TAG = /^(windows|linux|macos)(.+)$/i;
+const PER_OS_TAG = /^(windows|linux|macos|android)(.+)$/i;
 const LEGACY_TAG = /^v?(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]*)?)$/i;
 
 export type ParsedTag =
@@ -184,7 +187,7 @@ export function groupReleasesByVersion(releases: GhRelease[]): VersionRelease[] 
     }
   }
 
-  const preferred: PlatformId[] = ["windows", "macos", "linux"];
+  const preferred: PlatformId[] = ["windows", "macos", "linux", "android"];
 
   const versions: VersionRelease[] = [...byVersion.entries()]
     .map(([version, g]) => {
