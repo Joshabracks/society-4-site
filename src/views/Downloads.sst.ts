@@ -1,4 +1,4 @@
-import type { ReleasesState, VersionRelease, PlatformId, GhAsset } from "../releases";
+import type { ReleasesState, VersionRelease, PlatformId, GhAsset, NodePlatform } from "../releases";
 import {
   formatBytes,
   platformLabel,
@@ -48,6 +48,34 @@ function assetRows(v: VersionRelease, latest: boolean): string {
   return `${links}${pending}`;
 }
 
+/** The agent node's archives, and each OS's checksums. Nothing for a version without them. */
+function nodeRows(v: VersionRelease): string {
+  const rows = (["windows", "macos", "linux"] as NodePlatform[])
+    .flatMap((platform) => (v.nodeByPlatform[platform] ?? []).map((asset) => ({ platform, asset })))
+    .map(
+      ({ platform, asset }) => `
+        <div class="lcd-asset-row">
+          <div>
+            <p class="lcd-line"><strong>${platformLabel(platform)} </strong>— ${asset.name}</p>
+            <p class="lcd-muted">${formatBytes(asset.size)}</p>
+          </div>
+          <a href="${asset.browser_download_url}">Download</a>
+        </div>`,
+    )
+    .join("");
+  const sums = (["windows", "macos", "linux", "android"] as PlatformId[])
+    .filter((p) => v.sumsByPlatform[p])
+    .map((p) => `<a href="${v.sumsByPlatform[p]!.browser_download_url}">${platformLabel(p)}</a>`)
+    .join(" · ");
+  return `${
+    rows
+      ? `<p class="lcd-line lcd-os-heading">Agent node (s4-node + s4-agent)</p>
+         ${rows}
+         <p class="lcd-muted">For running an agent from the command line. See&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="run-an-agent")>Run an Agent</button>.</p>`
+      : ""
+  }${sums ? `<p class="lcd-muted">SHA256SUMS: ${sums}</p>` : ""}`;
+}
+
 function versionBlock(v: VersionRelease, latest: boolean): string {
   const legend = latest ? `Latest — ${v.label}` : v.label;
   return `
@@ -55,6 +83,7 @@ function versionBlock(v: VersionRelease, latest: boolean): string {
       <legend>${legend}</legend>
       <p class="lcd-muted">Society 4 ${v.label}</p>
       ${assetRows(v, latest)}
+      ${nodeRows(v)}
     </fieldset>
   `;
 }
@@ -84,14 +113,15 @@ export function Downloads({ state }: Ctx): string {
     <section class="lcd-panel">
       <h1 class="lcd-title">Downloads</h1>
       <p class="lcd-line">
-        Releases for Windows, macOS, Linux and Android.
+        Releases for Windows, macOS, Linux and Android, and the agent node for running an agent.
+        Each OS's release lists every file's checksum in <code>SHA256SUMS</code>.
       </p>
 
       <fieldset class="lcd-fieldset">
         <legend>Unsigned builds — read before install</legend>
         <p class="lcd-line lcd-signal warn">
-          These installers are <strong>not code-signed&nbsp;</strong> and the macOS build is&nbsp;<strong>not notarized</strong>. Your OS may warn or block the first launch —
-          that is expected, not proof the download is corrupt.
+          The Windows, macOS and Linux installers are <strong>not code-signed&nbsp;</strong> and the macOS build is&nbsp;<strong>not notarized</strong>. Your OS may warn or block the first launch —
+          that is expected, not proof the download is corrupt. The Android app is signed.
         </p>
         <ul class="lcd-list">
           <li>
@@ -114,7 +144,7 @@ export function Downloads({ state }: Ctx): string {
           </li>
           <li>
             <strong>Android: </strong>open the <code>.apk</code>&nbsp;on the phone; Android asks
-            once to allow installs from your browser or files app.
+            once to allow installs from your browser or files app. 64-bit ARM phones.
           </li>
         </ul>
       </fieldset>

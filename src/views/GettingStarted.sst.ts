@@ -10,8 +10,8 @@ export function GettingStarted(): string {
       <fieldset class="lcd-fieldset">
         <legend>1. Install</legend>
         <p class="lcd-line lcd-signal warn">
-          Installers aren't <strong>code-signed </strong>yet (and the macOS build isn't
-          notarized). Warnings on first launch are expected.
+          The Windows, macOS and Linux installers aren't <strong>code-signed </strong>yet
+          (and the macOS build isn't notarized). Warnings on first launch are expected.
         </p>
         <p class="lcd-line">
           Open&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="downloads")>Downloads</button>&nbsp;and pick your platform.
@@ -46,26 +46,31 @@ export function GettingStarted(): string {
 
         <p class="lcd-line lcd-os-heading">Android</p>
         <ol class="lcd-list">
-          <li>Download the <code>.apk </code>on the phone and open it. Android asks once to allow installs from your browser or files app.</li>
+          <li>Download the <code>.apk </code>on the phone and open it. Android asks once to allow installs from your browser or files app. It's for 64-bit ARM phones (nearly all recent ones).</li>
           <li>When the app asks, allow notifications: it then stays connected in the background, and DMs and mentions notify you.</li>
         </ol>
       </fieldset>
 
       <fieldset class="lcd-fieldset">
         <legend>2. Set up your account</legend>
-        <p class="lcd-line">The first time you open Society 4 it asks whether you've used it before.</p>
+        <p class="lcd-line">The first time you open Society 4 it asks whether it's your first time, or offers to continue with Google.</p>
         <p class="lcd-line"><strong>New here:</strong></p>
         <ol class="lcd-list">
           <li>Create your account. You're shown your <strong>recovery phrase</strong>: twelve words that are the only way back into your account if you lose your device.</li>
           <li>Save them somewhere secure (the app can copy them), then type back the three it highlights.</li>
           <li>Choose the name people will see. You can change it per workspace later.</li>
-          <li>Optionally set up an account backup: a password, then a file, a drive, or another place to keep it.</li>
+          <li>Back up your account: a password, then at least one place to keep it (a file, a removable drive, Google Drive, or a workspace's admins). You can skip this and do it later.</li>
         </ol>
+        <p class="lcd-line"><strong>Continue with Google: </strong>sign in to Google, and Society 4 looks in your Google Drive for your account backup.</p>
+        <ul class="lcd-list">
+          <li>Found: enter the backup's password, and your account and workspaces come back.</li>
+          <li>None: choose a backup password. A new account is made and backed up to your Drive, with no phrase to write down.</li>
+        </ul>
         <p class="lcd-line"><strong>Used it before: </strong>bring your account to this device in one of four ways.</p>
         <ul class="lcd-list">
           <li><strong>Link to one of my devices: </strong>approve it from a device that already has your account (it shows six words to check).</li>
           <li><strong>Enter my recovery phrase.</strong></li>
-          <li><strong>Restore from an account backup, </strong>with its password.</li>
+          <li><strong>Restore from an account backup </strong>(a file, a removable drive, or Google Drive), with its password.</li>
           <li><strong>Recover through a workspace </strong>whose admins keep a backup for you.</li>
         </ul>
       </fieldset>
@@ -99,6 +104,14 @@ export function GettingStarted(): string {
       </fieldset>
 
       <fieldset class="lcd-fieldset">
+        <legend>Staying connected</legend>
+        <ul class="lcd-list">
+          <li><strong>Desktop: </strong>closing the window keeps Society 4 running in the tray, so every workspace stays connected and DMs and mentions notify you. Quit from the tray icon (or make the close button quit in Settings). It can start when you log in.</li>
+          <li><strong>Updates: </strong>the desktop app offers each new version shortly after it starts, and restarts once it's installed.</li>
+        </ul>
+      </fieldset>
+
+      <fieldset class="lcd-fieldset">
         <legend>Firewalls and networks</legend>
         <ul class="lcd-list">
           <li><strong>Windows: </strong>the app adds a firewall rule for its own port on private networks.</li>
@@ -109,6 +122,7 @@ export function GettingStarted(): string {
 
       <div class="lcd-row">
         <button type="button" :click=setView(target="downloads")>Downloads</button>
+        <button type="button" class="lcd-ghost" :click=setView(target="run-an-agent")>Run an Agent</button>
         <button type="button" class="lcd-ghost" :click=setView(target="faq")>FAQ</button>
       </div>
     </section>

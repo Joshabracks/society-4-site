@@ -41,8 +41,17 @@ export function Privacy(): string {
         <legend>Backups</legend>
         <ul class="lcd-list">
           <li>Account backups are encrypted with a password you choose. Wherever they're kept, only that password opens them.</li>
-          <li>With Google Drive (where available), Society 4 can see only the files it creates there, and Google sees only the encrypted file.</li>
+          <li>With Google Drive, Society 4 asks Google only for access to the files it creates there, and your Google account's email address, to show which account is connected. Google sees only the encrypted backup. Society 4 has no server: nothing passes through anyone else.</li>
           <li>Workspace backups follow the workspace's policy, which says who may write and read them.</li>
+        </ul>
+      </fieldset>
+
+      <fieldset class="lcd-fieldset">
+        <legend>Agents</legend>
+        <ul class="lcd-list">
+          <li>An agent sees only the channels it's added to, DMs people open with it, and the repos whose team it's on. Hidden files are never sent to it.</li>
+          <li>What it reads goes to the model its operator runs it with: on the operator's own machine, or the AI service behind the client they chose. Ask its operator which.</li>
+          <li>An agent can only fetch web pages or search if its operator turns that on.</li>
         </ul>
       </fieldset>
 

@@ -1,6 +1,6 @@
 # Society 4 — public site
 
-Marketing and user docs for **Society 4**, served via GitHub Pages.
+Marketing and user docs for **Society 4**, served via GitHub Pages. All of Society 4's public documentation lives here.
 
 **Live:** https://joshabracks.github.io/society-4-site/
 
@@ -43,21 +43,36 @@ npm run deploy
 | Hash | Page |
 |------|------|
 | `#home` | Landing |
-| `#how-it-works` | Accounts, membership, messages, invite links, networks, backups |
+| `#how-it-works` | Accounts, membership, messages, invite links, networks, shared repos, agents, backups |
 | `#getting-started` | Install, set up an account, create or join a workspace |
-| `#downloads` | Installers (desktop and Android APK) from the Releases API |
+| `#downloads` | Installers (desktop and Android APK) and the agent node, from the Releases API |
+| `#run-an-agent` | Installing and running `s4-node` / `s4-agent` from the command line |
 | `#faq` | Troubleshooting |
 | `#privacy` | Privacy & security |
 | `#changelog` | Release notes |
 
 ## Releases
 
-Public download assets live on this repo’s Releases (not in `dist/`).
+Public downloads live on this repo's Releases (not in `dist/`), **one release per OS and version**:
+`windows0.5.0`, `macOS0.5.0`, `linux0.5.0`, `android0.5.0`. Each holds that OS's files:
 
-**Per-OS tags** (preferred local flow): `windows0.3.1`, `macOS0.3.1`, `linux0.3.1` — each holds that platform’s installer. The site groups them by version so Downloads/Changelog show one “0.3.1” entry with up to three platforms.
+| File | What it is |
+|------|------------|
+| `Society4-<v>-<os>-<arch>.<ext>` | The app's installer (and, for the in-app updater, its update package and `.sig`) |
+| `s4-node-<v>-<os>-<arch>.zip` / `.tar.gz` | The agent node, with `s4-agent` (desktop OSes only) |
+| `s4-node-cuda-<os>-<arch>--<file>`, `backends.json`, `.sig` | The node's CUDA pack and its signed list (Windows, Linux); `s4-node backends install cuda` fetches them |
+| `SHA256SUMS` | Every file's SHA-256, as `sha256sum` writes them |
 
-**Legacy:** a single `v0.3.1` release with all three installers attached is still understood.
+The site groups the per-OS releases by version: Downloads lists installers and node archives, and Run an Agent
+fills the latest version with a node into its commands. Older `v0.3.1`-style releases (all OSes in one) are still
+read.
 
-Release **tags** point at the stub `release-heads` branch (not `main`), so GitHub’s automatic “Source code” zip/tar is a one-file stub — not the website tree and not the private Society 4 app.
+Two flows publish them from the private Society 4 repo:
 
-Publish installers from the private desktop repo with `npm run release` (see `society4/apps/desktop/README.md`), using `SOCIETY4_SITE_RELEASE_TOKEN` or `gh` auth.
+- **CI** (`.github/workflows/desktop-release.yml`, on a version bump merged to main): every OS at once, with signed
+  update packages; it also replaces `latest.json` on the fixed `updater` release, which installed apps check.
+- **Local** (`npm run release` in `society4/apps/desktop`): this machine's OS only, with its node; no updater feed.
+  Needs `SOCIETY4_SITE_RELEASE_TOKEN` or `gh` auth.
+
+Release **tags** point at the stub `release-heads` branch (not `main`), so GitHub's automatic "Source code"
+zip/tar is a one-file stub, not the website tree and not the private Society 4 app.

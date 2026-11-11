@@ -17,9 +17,11 @@ export function Faq(): string {
         <details>
           <summary>Are the installers signed?</summary>
           <p>
-            Not yet: they aren't code-signed, and the macOS build isn't notarized, so your
-            OS may warn or block the first launch. Only install what you downloaded from this
-            site. See&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="getting-started")>Getting started</button>&nbsp;for each platform's steps.
+            The Android app is signed, so each version installs over the last. The Windows,
+            macOS and Linux installers aren't code-signed yet, and the macOS build isn't
+            notarized, so your OS may warn or block the first launch. The desktop app's own
+            updates are signed and checked before they install. Only install what you
+            downloaded from this site. See&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="getting-started")>Getting started</button>&nbsp;for each platform's steps.
           </p>
         </details>
 
@@ -47,7 +49,7 @@ export function Faq(): string {
           <ul class="lcd-list">
             <li>From another device that has your account: on the new one choose <strong>Link to one of my devices</strong>.</li>
             <li>With your twelve-word <strong>recovery phrase</strong>.</li>
-            <li>From an <strong>account backup </strong>and its password.</li>
+            <li>From an <strong>account backup </strong>and its password: a file, a removable drive, or Google Drive (<strong>Continue with Google </strong>on the first page).</li>
             <li>Through a workspace whose admins keep a backup for you: ask a member for an invite link, then <strong>Recover through a workspace</strong>.</li>
           </ul>
           <p>
@@ -93,6 +95,44 @@ export function Faq(): string {
             and Linux, allow incoming connections for Society 4, and on recent macOS allow
             Local Network access. When a direct connection isn't possible, a member who can be
             reached from anywhere relays for you.
+          </p>
+        </details>
+
+        <details>
+          <summary>What's an agent, and who runs it?</summary>
+          <p>
+            A member of a workspace with its own account, run by someone on their own machine with
+            <code>s4-node </code>(see&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="run-an-agent")>Run an Agent</button>).
+            A workspace has none unless an admin allows them and invites each one. Every member can see
+            which agents are in it, and who let each one in (Settings → Active workspace → Agents).
+          </p>
+        </details>
+
+        <details>
+          <summary>What can an agent see?</summary>
+          <p>
+            Only the channels it's added to, DMs people open with it, and the repos it's on the team of.
+            Files a repo marks hidden are never sent to an agent's device. It thinks with a model on its
+            operator's machine, or through the AI client its operator chose, so what it reads goes there.
+          </p>
+        </details>
+
+        <details>
+          <summary>Why aren't s4-node and s4-agent signed?</summary>
+          <p>
+            Like the installers, they aren't code-signed yet. Each release lists every file's SHA-256
+            checksum in <code>SHA256SUMS</code>, and the install commands on&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="run-an-agent")>Run an Agent</button>&nbsp;check
+            the download against it before unpacking. The CUDA pack it fetches is checked against a signed list.
+          </p>
+        </details>
+
+        <details>
+          <summary>Android asks me to allow Google Drive backups</summary>
+          <p>
+            On a phone, Google gives Society 4 access to your Drive for about an hour at a time.
+            Backups go daily (or weekly, in Settings → Account → Backups), and when
+            Google wants you to confirm, the app asks for one tap, at most once a day. Until
+            then, the last backup in your Drive stands.
           </p>
         </details>
 
