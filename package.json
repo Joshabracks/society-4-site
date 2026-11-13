@@ -1,7 +1,7 @@
 {
   "name": "society-4-site",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.5.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,13 +10,15 @@
     "push:fix": "node scripts/push.mjs fix",
     "push:feat": "node scripts/push.mjs feat",
     "push:breaking": "node scripts/push.mjs breaking",
-    "deploy": "node scripts/deploy.mjs"
+    "deploy": "node scripts/deploy.mjs",
+    "test": "vitest run"
   },
   "dependencies": {
-    "@state-street/state-street": "^2.3.1"
+    "@state-street/state-street": "^3.0.2"
   },
   "devDependencies": {
     "typescript": "~5.6.2",
-    "vite": "^6.0.3"
+    "vite": "^6.0.3",
+    "vitest": "^3.2.4"
   }
 }

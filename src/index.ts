@@ -7,6 +7,7 @@ import { Home } from "./views/Home.sst";
 import { HowItWorks } from "./views/HowItWorks.sst";
 import { GettingStarted } from "./views/GettingStarted.sst";
 import { Downloads } from "./views/Downloads.sst";
+import { RunAnAgent } from "./views/RunAnAgent.sst";
 import { Faq } from "./views/Faq.sst";
 import { Privacy } from "./views/Privacy.sst";
 import { Changelog } from "./views/Changelog.sst";
@@ -17,6 +18,8 @@ type MethodCtx = {
     data: ReturnType<typeof initialData>;
   };
   target?: string;
+  os?: string;
+  event?: Event;
 };
 
 const mode = loadStoredMode();
@@ -31,13 +34,14 @@ const components = {
   HowItWorks,
   GettingStarted,
   Downloads,
+  RunAnAgent,
   Faq,
   Privacy,
   Changelog,
 };
 
 function needsReleases(view: ViewId): boolean {
-  return view === "downloads" || view === "changelog";
+  return view === "downloads" || view === "changelog" || view === "run-an-agent";
 }
 
 function loadReleases({ state }: MethodCtx): void {
@@ -71,23 +75,44 @@ const methods = {
     applyDocumentTheme(next);
   },
   loadReleases,
+  setAgentOs: ({ state, os }: MethodCtx) => {
+    if (os === "windows" || os === "macos" || os === "linux") state.data.agentOs = os;
+  },
+  /** Copy a command block's text, as shown. */
+  copyCode: ({ event }: MethodCtx) => {
+    const button = (event?.target as Element | null)?.closest("button") ?? null;
+    const text = button?.closest(".lcd-code")?.querySelector("code")?.textContent ?? "";
+    if (!button || !text) return;
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        button.textContent = "Copied";
+        setTimeout(() => (button.textContent = "Copy"), 1500);
+      })
+      .catch(() => {
+        button.textContent = "Select and copy";
+      });
+  },
 };
 
 function boot(): void {
-  new State(`<AppRoot/>`, data, components, methods);
+  // Write through the State's own data (a proxy): writes to the plain object
+  // passed in don't schedule a render.
+  const app = new State(`<AppRoot/>`, data, components, methods);
+  const state = { data: app.data as typeof data };
 
   window.addEventListener("hashchange", () => {
     const view = parseHash(location.hash);
-    data.view = view;
+    state.data.view = view;
     if (needsReleases(view)) {
-      loadReleases({ state: { data } });
+      loadReleases({ state });
     }
   });
 
   if (!location.hash) {
-    location.hash = data.view;
-  } else if (needsReleases(data.view)) {
-    loadReleases({ state: { data } });
+    location.hash = state.data.view;
+  } else if (needsReleases(state.data.view)) {
+    loadReleases({ state });
   }
 }
 

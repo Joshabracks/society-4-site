@@ -55,17 +55,9 @@
 }
 
 [data-mode="dark"] {
-  --ink-text-shadow:
-    0 0 1px var(--lcd-fg),
-    0 0 4px color-mix(in srgb, var(--lcd-fg) 40%, transparent),
-    0 0 8px color-mix(in srgb, var(--lcd-fg) 18%, transparent);
-  --ink-outline-shadow:
-    0 0 3px color-mix(in srgb, var(--lcd-fg) 35%, transparent),
-    0 0 6px color-mix(in srgb, var(--lcd-fg) 18%, transparent);
-  --ink-filter: drop-shadow(
-      0 0 2px color-mix(in srgb, var(--lcd-fg) 50%, transparent)
-    )
-    drop-shadow(0 0 5px color-mix(in srgb, var(--lcd-fg) 22%, transparent));
+  --ink-text-shadow: none;
+  --ink-outline-shadow: none;
+  --ink-filter: none;
 }
 
 *,
@@ -483,4 +475,110 @@ button.lcd-ghost {
   .lcd-topbar-end {
     justify-content: flex-end;
   }
+}
+
+/* Command blocks (Run an Agent): the app's code editor in its default theme,
+   Gray Dark (society4 apps/desktop/src/codeTheme.ts), in light and dark alike. */
+:root {
+  --code-bg: #1d1d1b;
+  --code-fg: #d6d6ce;
+  --code-muted: #8c8c84;
+  --code-border: #3a3a37;
+  --code-font: var(--font-lcd);
+}
+
+.lcd-code {
+  position: relative;
+  margin: 10px 0;
+  background: var(--code-bg);
+  color: var(--code-fg);
+  border: var(--lcd-border) solid var(--lcd-fg-muted);
+  border-radius: calc(var(--lcd-radius) / 2);
+  text-shadow: none;
+  overflow: hidden;
+}
+
+.lcd-code-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 6px 0 12px;
+  background: color-mix(in srgb, var(--code-fg) 5%, var(--code-bg));
+  border-bottom: 1px solid var(--code-border);
+}
+
+.lcd-code-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--code-muted);
+  font: 500 12px var(--code-font);
+  text-transform: none;
+  text-shadow: none;
+}
+
+.lcd-code pre {
+  margin: 0;
+  padding: 10px 14px 12px;
+  overflow-x: auto;
+  color: var(--code-fg);
+  font: 500 13px/1.5 var(--code-font);
+  letter-spacing: 0;
+  text-transform: none;
+  text-shadow: none;
+  scrollbar-color: var(--code-border) transparent;
+}
+
+.lcd-code pre code {
+  font: inherit;
+}
+
+.lcd-code pre::selection,
+.lcd-code pre *::selection {
+  background: rgba(130, 170, 255, 0.28);
+}
+
+button.lcd-code-copy {
+  flex: none;
+  padding: 2px 8px;
+  background: var(--code-bg);
+  color: var(--code-muted);
+  border: 1px solid var(--code-border);
+  box-shadow: none;
+  text-shadow: none;
+  font-size: 11px;
+}
+
+button.lcd-code-copy:hover,
+button.lcd-code-copy:focus-visible {
+  color: var(--code-fg);
+  border-color: var(--code-muted);
+  filter: none;
+}
+
+.lcd-os-tabs {
+  margin: 16px 0 6px;
+}
+
+.lcd-os-tabs button.is-active {
+  background: var(--lcd-fg);
+  color: var(--lcd-bg);
+  text-shadow: none;
+}
+
+
+/* A fieldset is as wide as its widest content by default: keep it to the page, so a long command scrolls in its block. */
+.lcd-fieldset {
+  min-width: 0;
+}
+
+/* Grid and flex items grow to their content by default: let a wide command scroll instead. */
+.lcd-shell > main,
+.lcd-panel,
+.lcd-code {
+  min-width: 0;
+  max-width: 100%;
 }

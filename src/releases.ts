@@ -16,15 +16,27 @@ export type GhRelease = {
   published_at: string | null;
   html_url: string;
   assets: GhAsset[];
+  /**
+   * A version's per-OS releases stay prereleases until every OS's parts are
+   * published (society-4's site-release.mjs `finalize`); the site skips them.
+   */
+  prerelease?: boolean;
+  draft?: boolean;
 };
 
-export type PlatformId = "windows" | "macos" | "linux";
+export type PlatformId = "windows" | "macos" | "linux" | "android";
+/** The OSes the agent node is built for. */
+export type NodePlatform = "windows" | "macos" | "linux";
 
 /** One desktop version, possibly merged from several per-OS GitHub Releases. */
 export type VersionRelease = {
   version: string;
   assetsByPlatform: Partial<Record<PlatformId, GhAsset[]>>;
   platforms: PlatformId[];
+  /** The agent node's archives (`s4-node-<v>-<os>-<arch>`), per OS. */
+  nodeByPlatform: Partial<Record<NodePlatform, GhAsset[]>>;
+  /** Each per-OS release's SHA256SUMS. */
+  sumsByPlatform: Partial<Record<PlatformId, GhAsset>>;
   published_at: string | null;
   notes: string | null;
   html_urls: string[];
@@ -38,15 +50,41 @@ export type ReleasesState =
   | { status: "empty" }
   | { status: "error"; message: string };
 
+/** An agent node archive: `s4-node-<version>-<os>-<arch>.zip|.tar.gz`. */
+export function nodeAssetOf(name: string): { platform: NodePlatform; arch: string; version: string } | null {
+  const m = /^s4-node-(\d[^-]*)-(windows|macos|linux)-([a-z0-9_]+)\.(zip|tar\.gz)$/.exec(name);
+  return m ? { version: m[1], platform: m[2] as NodePlatform, arch: m[3] } : null;
+}
+
+/**
+ * Files a release carries that are never offered as downloads: the in-app
+ * updater's packages and signatures, the node's CUDA pack and its manifest
+ * (`s4-node backends install cuda` fetches them), checksums, the node itself
+ * (listed on its own).
+ */
+function isSupportFile(name: string): boolean {
+  const n = name.toLowerCase();
+  return (
+    n.startsWith("s4-node-") ||
+    n.endsWith(".sig") ||
+    n.endsWith(".app.tar.gz") ||
+    n === "sha256sums" ||
+    n === "backends.json" ||
+    n === "latest.json"
+  );
+}
+
 export function platformForAsset(name: string): PlatformId | "other" {
+  if (isSupportFile(name)) return "other";
   const n = name.toLowerCase();
   if (n.includes("windows") || n.endsWith(".msi") || n.endsWith(".exe")) return "windows";
   if (n.includes("macos") || n.endsWith(".dmg")) return "macos";
   if (n.includes("linux") || n.endsWith(".appimage") || n.endsWith(".deb")) return "linux";
+  if (n.includes("android") || n.endsWith(".apk")) return "android";
   return "other";
 }
 
-/** Only desktop installers — never source archives or unrelated assets. */
+/** Only installers (desktop, and the Android APK) — never source archives or unrelated assets. */
 export function isInstallerAsset(name: string): boolean {
   return platformForAsset(name) !== "other";
 }
@@ -69,12 +107,14 @@ export function platformLabel(p: PlatformId | "other"): string {
       return "macOS";
     case "linux":
       return "Linux";
+    case "android":
+      return "Android";
     default:
       return "Other";
   }
 }
 
-const PER_OS_TAG = /^(windows|linux|macos)(.+)$/i;
+const PER_OS_TAG = /^(windows|linux|macos|android)(.+)$/i;
 const LEGACY_TAG = /^v?(\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]*)?)$/i;
 
 export type ParsedTag =
@@ -136,6 +176,8 @@ export function groupReleasesByVersion(releases: GhRelease[]): VersionRelease[] 
     string,
     {
       assetsByPlatform: Partial<Record<PlatformId, GhAsset[]>>;
+      nodeByPlatform: Partial<Record<NodePlatform, GhAsset[]>>;
+      sumsByPlatform: Partial<Record<PlatformId, GhAsset>>;
       published_at: string | null;
       notes: string | null;
       html_urls: string[];
@@ -147,6 +189,8 @@ export function groupReleasesByVersion(releases: GhRelease[]): VersionRelease[] 
     if (!g) {
       g = {
         assetsByPlatform: {},
+        nodeByPlatform: {},
+        sumsByPlatform: {},
         published_at: null,
         notes: null,
         html_urls: [],
@@ -157,6 +201,8 @@ export function groupReleasesByVersion(releases: GhRelease[]): VersionRelease[] 
   };
 
   for (const rel of releases) {
+    // Not complete yet: some OS's app or node is still being built.
+    if (rel.prerelease || rel.draft) continue;
     const parsed = parseReleaseTag(rel.tag_name);
     if (parsed.kind === "unknown") continue;
 
@@ -165,6 +211,11 @@ export function groupReleasesByVersion(releases: GhRelease[]): VersionRelease[] 
     if (!g.notes && rel.body?.trim()) g.notes = rel.body.trim();
     if (!g.html_urls.includes(rel.html_url)) g.html_urls.push(rel.html_url);
 
+    for (const asset of rel.assets) {
+      const node = nodeAssetOf(asset.name);
+      if (node) addAsset(g.nodeByPlatform, node.platform, asset);
+      if (asset.name === "SHA256SUMS" && parsed.kind === "per-os") g.sumsByPlatform[parsed.platform] = asset;
+    }
     const assets = installerAssets(rel.assets);
 
     if (parsed.kind === "per-os") {
@@ -184,7 +235,7 @@ export function groupReleasesByVersion(releases: GhRelease[]): VersionRelease[] 
     }
   }
 
-  const preferred: PlatformId[] = ["windows", "macos", "linux"];
+  const preferred: PlatformId[] = ["windows", "macos", "linux", "android"];
 
   const versions: VersionRelease[] = [...byVersion.entries()]
     .map(([version, g]) => {
@@ -194,6 +245,8 @@ export function groupReleasesByVersion(releases: GhRelease[]): VersionRelease[] 
         label: version,
         assetsByPlatform: g.assetsByPlatform,
         platforms,
+        nodeByPlatform: g.nodeByPlatform,
+        sumsByPlatform: g.sumsByPlatform,
         published_at: g.published_at,
         notes: g.notes,
         html_urls: g.html_urls,
@@ -203,6 +256,11 @@ export function groupReleasesByVersion(releases: GhRelease[]): VersionRelease[] 
     .sort((a, b) => cmpSemverDesc(a.version, b.version));
 
   return versions;
+}
+
+/** The newest version with agent node archives, if any. */
+export function latestNodeRelease(versions: VersionRelease[]): VersionRelease | null {
+  return versions.find((v) => Object.values(v.nodeByPlatform).some((list) => list?.length)) ?? null;
 }
 
 let inflight: Promise<GhRelease[]> | null = null;
