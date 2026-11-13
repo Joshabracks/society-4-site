@@ -11,6 +11,7 @@ import { RunAnAgent } from "./views/RunAnAgent.sst";
 import { Faq } from "./views/Faq.sst";
 import { Privacy } from "./views/Privacy.sst";
 import { Changelog } from "./views/Changelog.sst";
+import { SOCIETY_4_OPEN_LINK } from "./config";
 import "./themes.css";
 
 type MethodCtx = {
@@ -84,6 +85,21 @@ const methods = {
     if (os === "windows" || os === "macos" || os === "linux" || os === "android" || os === "ios") {
       state.data.downloadOs = os;
     }
+  },
+  /** Copy the Society 4 Open workspace invite (home page banner). */
+  copyInvite: ({ event }: MethodCtx) => {
+    const button = (event?.target as Element | null)?.closest("button") ?? null;
+    if (!button) return;
+    navigator.clipboard
+      .writeText(SOCIETY_4_OPEN_LINK)
+      .then(() => {
+        button.textContent = "Copied";
+        setTimeout(() => (button.textContent = "Copy invite link"), 1500);
+      })
+      .catch(() => {
+        button.textContent = "Copy failed";
+        setTimeout(() => (button.textContent = "Copy invite link"), 1500);
+      });
   },
   /** Copy a command block's text, as shown. */
   copyCode: ({ event }: MethodCtx) => {

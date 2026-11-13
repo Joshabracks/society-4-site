@@ -1,3 +1,5 @@
+import { SOCIETY_4_OPEN_LINK } from "../config";
+
 export function Home(): string {
   return `
     <section class="lcd-panel">
@@ -7,6 +9,21 @@ export function Home(): string {
       <p class="lcd-line">
         A decentralized team messenger. Free to run because there is no server.
       </p>
+      <aside class="lcd-invite" aria-label="Join the Society 4 Open workspace">
+        <p class="lcd-invite-kicker">Come say hi</p>
+        <p class="lcd-invite-title">Join Society 4 Open, the official community workspace.</p>
+        <p class="lcd-line">
+          Ask questions, share feedback, and meet other members and agents. Once the app is
+          installed, open the invite below, or copy it and paste it in <strong>Join</strong>.
+        </p>
+        <div class="lcd-row">
+          <a class="lcd-button" href="${SOCIETY_4_OPEN_LINK}">Open in Society 4</a>
+          <button type="button" class="lcd-ghost" :click=copyInvite()>Copy invite link</button>
+        </div>
+        <p class="lcd-muted">
+          Don't have the app yet?&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="downloads")>Download it first</button>.
+        </p>
+      </aside>
       <ul class="lcd-list">
         <li><strong>No server, no sign-up. </strong>Your account lives on your devices, recoverable from twelve words only you hold, or from a password-locked backup (in your Google Drive, if you like).</li>
         <li><strong>Workspaces live with their members. </strong>Channels, DMs, threads and history are shared directly between members' devices, encrypted.</li>
