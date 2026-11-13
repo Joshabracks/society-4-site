@@ -126,3 +126,18 @@ describe("versions", () => {
     expect(latestNodeRelease([old])).toBeNull();
   });
 });
+
+describe("versions still being published", () => {
+  it("are hidden: their per-OS releases stay prereleases until every OS is there", () => {
+    const hidden = (tag: string, names: string[]): GhRelease => ({ ...release(tag, names), prerelease: true });
+    const versions = groupReleasesByVersion([
+      hidden("windows0.6.0", ["Society4-0.6.0-windows-x64.msi"]),
+      hidden("macOS0.6.0", ["Society4-0.6.0-macos-aarch64.dmg"]),
+      release("windows0.5.0", WINDOWS),
+      release("macOS0.5.0", MACOS),
+      release("linux0.5.0", LINUX),
+    ]);
+    expect(versions.map((v) => v.version)).toEqual(["0.5.0"]);
+    expect(latestNodeRelease(versions)?.version).toBe("0.5.0");
+  });
+});

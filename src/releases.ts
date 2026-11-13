@@ -16,6 +16,12 @@ export type GhRelease = {
   published_at: string | null;
   html_url: string;
   assets: GhAsset[];
+  /**
+   * A version's per-OS releases stay prereleases until every OS's parts are
+   * published (society-4's site-release.mjs `finalize`); the site skips them.
+   */
+  prerelease?: boolean;
+  draft?: boolean;
 };
 
 export type PlatformId = "windows" | "macos" | "linux" | "android";
@@ -195,6 +201,8 @@ export function groupReleasesByVersion(releases: GhRelease[]): VersionRelease[] 
   };
 
   for (const rel of releases) {
+    // Not complete yet: some OS's app or node is still being built.
+    if (rel.prerelease || rel.draft) continue;
     const parsed = parseReleaseTag(rel.tag_name);
     if (parsed.kind === "unknown") continue;
 
