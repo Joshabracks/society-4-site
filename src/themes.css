@@ -427,6 +427,56 @@ button.lcd-ghost {
   opacity: 0.85;
 }
 
+/* Home page banner: invite to the Society 4 Open workspace. */
+.lcd-invite {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  border: var(--lcd-border) solid var(--signal-ok);
+  border-left-width: 10px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--signal-ok) 10%, transparent);
+  box-shadow: var(--ink-outline-shadow);
+}
+
+.lcd-invite-kicker {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--signal-ok);
+}
+
+.lcd-invite-title {
+  margin: 0;
+  font-size: clamp(1.05rem, 2.6vw, 1.3rem);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+/* A link styled as the primary button. */
+a.lcd-button {
+  display: inline-block;
+  font-weight: 700;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding: 8px 12px;
+  background: var(--lcd-fg);
+  color: var(--lcd-bg);
+  border: var(--lcd-border) solid var(--lcd-fg);
+  border-radius: 4px;
+  text-shadow: none;
+  box-shadow: var(--ink-outline-shadow);
+}
+
+a.lcd-button:hover,
+a.lcd-button:focus-visible {
+  color: var(--lcd-bg);
+  filter: var(--ink-filter);
+}
+
 .lcd-signal.warn {
   color: var(--signal-warn);
 }
