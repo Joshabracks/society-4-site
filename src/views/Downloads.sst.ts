@@ -1,160 +1,122 @@
-import type { ReleasesState, VersionRelease, PlatformId, GhAsset, NodePlatform } from "../releases";
-import {
-  formatBytes,
-  platformLabel,
-} from "../releases";
+import type { DownloadOs, GhAsset, ReleasesState, VersionRelease } from "../releases";
+import { formatBytes } from "../releases";
 
-type Ctx = { state: { data: { releases: ReleasesState } } };
+type Ctx = { state: { data: { releases: ReleasesState; downloadOs: DownloadOs } } };
 
-function flatAssets(v: VersionRelease): { platform: PlatformId; asset: GhAsset }[] {
-  const preferred: PlatformId[] = ["windows", "macos", "linux", "android"];
-  const rows: { platform: PlatformId; asset: GhAsset }[] = [];
-  for (const platform of preferred) {
-    const list = v.assetsByPlatform[platform];
-    if (!list?.length) continue;
-    for (const asset of list) {
-      rows.push({ platform, asset });
-    }
-  }
-  return rows;
+const OS_CHOICES: { id: DownloadOs; label: string }[] = [
+  { id: "windows", label: "Windows" },
+  { id: "macos", label: "macOS" },
+  { id: "linux", label: "Linux" },
+  { id: "android", label: "Android" },
+  { id: "ios", label: "iOS (iPhone)" },
+];
+
+const osLabel = (os: DownloadOs) => OS_CHOICES.find((o) => o.id === os)?.label ?? os;
+
+/** What to expect on first launch, for the chosen OS. */
+const INSTALL_NOTES: Record<Exclude<DownloadOs, "ios">, string> = {
+  windows: `
+    <p class="lcd-line lcd-signal warn">The installer is <strong>not code-signed</strong>, so Windows may warn on first launch. That's expected, not a sign the download is corrupt.</p>
+    <p class="lcd-muted">SmartScreen / “Windows protected your PC” → <strong>More info</strong> → <strong>Run anyway</strong> (wording may vary).</p>`,
+  macos: `
+    <p class="lcd-line lcd-signal warn">The app is <strong>not code-signed or notarized</strong>, so macOS may block the first launch. That's expected, not a sign the download is corrupt.</p>
+    <p class="lcd-muted">“Damaged and can't be opened” is usually Gatekeeper quarantine. Drag the app to Applications, then Control-click / right-click → <strong>Open</strong> → <strong>Open</strong>. Or use <strong>System Settings → Privacy &amp; Security → Open Anyway</strong> after one blocked launch. Full steps on <button type="button" class="lcd-linkish" :click=setView(target="getting-started")>Getting started</button>.</p>`,
+  linux: `
+    <p class="lcd-line lcd-signal warn">The AppImage is <strong>not code-signed</strong>; your desktop may warn about an untrusted binary.</p>
+    <p class="lcd-muted">Mark it executable (<code>chmod +x</code>) if needed, then run it.</p>`,
+  android: `
+    <p class="lcd-muted">The app is signed. Open the <code>.apk</code> on the phone; Android asks once to allow installs from your browser or files app. For 64-bit ARM phones.</p>`,
+};
+
+function assetRow(asset: GhAsset): string {
+  return `
+    <div class="lcd-asset-row">
+      <div>
+        <p class="lcd-line">${asset.name}</p>
+        <p class="lcd-muted">${formatBytes(asset.size)}</p>
+      </div>
+      <a href="${asset.browser_download_url}">Download</a>
+    </div>`;
 }
 
-function assetRows(v: VersionRelease, latest: boolean): string {
-  const rows = flatAssets(v);
-  if (!rows.length) {
-    return `<p class="lcd-muted">No installer assets for this version yet.</p>`;
-  }
-  const missing = (["windows", "macos", "linux", "android"] as PlatformId[]).filter(
-    (p) => !v.platforms.includes(p),
-  );
-  const links = rows
-    .map(({ platform, asset }) => {
-      const plat = platformLabel(platform);
-      return `
-        <div class="lcd-asset-row">
-          <div>
-            <p class="lcd-line"><strong>${plat} </strong>— ${asset.name}</p>
-            <p class="lcd-muted">${formatBytes(asset.size)}</p>
-          </div>
-          <a href="${asset.browser_download_url}">Download</a>
-        </div>
-      `;
-    })
-    .join("");
-  // Only for the latest: older versions predate some platforms (Android).
-  const pending = latest && missing.length
-    ? `<p class="lcd-muted">Not published yet: ${missing.map(platformLabel).join(", ")}</p>`
-    : "";
-  return `${links}${pending}`;
+function section(title: string, assets: GhAsset[] | undefined, os: DownloadOs, extra = ""): string {
+  const rows = assets?.length
+    ? assets.map(assetRow).join("")
+    : `<p class="lcd-muted">Not available for ${osLabel(os)} in this version.</p>`;
+  return `<p class="lcd-line lcd-os-heading">${title}</p>${rows}${extra}`;
 }
 
-/** The agent node's archives, and each OS's checksums. Nothing for a version without them. */
-function nodeRows(v: VersionRelease): string {
-  const rows = (["windows", "macos", "linux"] as NodePlatform[])
-    .flatMap((platform) => (v.nodeByPlatform[platform] ?? []).map((asset) => ({ platform, asset })))
-    .map(
-      ({ platform, asset }) => `
-        <div class="lcd-asset-row">
-          <div>
-            <p class="lcd-line"><strong>${platformLabel(platform)} </strong>— ${asset.name}</p>
-            <p class="lcd-muted">${formatBytes(asset.size)}</p>
-          </div>
-          <a href="${asset.browser_download_url}">Download</a>
-        </div>`,
-    )
-    .join("");
-  const sums = (["windows", "macos", "linux", "android"] as PlatformId[])
-    .filter((p) => v.sumsByPlatform[p])
-    .map((p) => `<a href="${v.sumsByPlatform[p]!.browser_download_url}">${platformLabel(p)}</a>`)
-    .join(" · ");
-  return `${
-    rows
-      ? `<p class="lcd-line lcd-os-heading">Agent node (s4-node + s4-agent)</p>
-         ${rows}
-         <p class="lcd-muted">For running an agent from the command line. See&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="run-an-agent")>Run an Agent</button>.</p>`
-      : ""
-  }${sums ? `<p class="lcd-muted">SHA256SUMS: ${sums}</p>` : ""}`;
-}
-
-function versionBlock(v: VersionRelease, latest: boolean): string {
-  const legend = latest ? `Latest — ${v.label}` : v.label;
+/** The chosen OS's downloads from the newest version. */
+function osDownloads(v: VersionRelease, os: Exclude<DownloadOs, "ios">): string {
+  const messenger = section("Society 4 - Workspace Messenger", v.assetsByPlatform[os], os, INSTALL_NOTES[os]);
+  const node =
+    os === "android"
+      ? ""
+      : section(
+          "Society 4 - Agent Node",
+          v.nodeByPlatform[os],
+          os,
+          `<p class="lcd-muted">The node (<code>s4-node</code> + <code>s4-agent</code>) runs an agent from the command line. See <button type="button" class="lcd-linkish" :click=setView(target="run-an-agent")>Run an Agent</button>.</p>`,
+        );
+  const sums = v.sumsByPlatform[os];
   return `
     <fieldset class="lcd-fieldset">
-      <legend>${legend}</legend>
-      <p class="lcd-muted">Society 4 ${v.label}</p>
-      ${assetRows(v, latest)}
-      ${nodeRows(v)}
-    </fieldset>
-  `;
+      <legend>Society 4 ${v.label} — ${osLabel(os)}</legend>
+      ${messenger}
+      ${node}
+      ${sums ? `<p class="lcd-muted">Checksums: <a href="${sums.browser_download_url}">SHA256SUMS</a></p>` : ""}
+    </fieldset>`;
+}
+
+const IOS = `
+  <fieldset class="lcd-fieldset">
+    <legend>iOS (iPhone)</legend>
+    <p class="lcd-line lcd-os-heading">Coming soon</p>
+    <p class="lcd-line">Society 4 for iPhone is on the way. Until then, use the desktop app or Android.</p>
+  </fieldset>`;
+
+function picker(os: DownloadOs): string {
+  const options = OS_CHOICES.map(
+    (o) => `<option value="${o.id}"${o.id === os ? " selected" : ""}>${o.label}</option>`,
+  ).join("");
+  return `
+    <label class="lcd-os-picker">
+      <span class="lcd-line">Download for</span>
+      <select :change=setDownloadOs()>${options}</select>
+    </label>`;
 }
 
 export function Downloads({ state }: Ctx): string {
-  const rel = state.data.releases;
-
-  let body = "";
-  if (rel.status === "idle" || rel.status === "loading") {
-    body = `<p class="lcd-muted">Loading releases…</p>`;
-  } else if (rel.status === "error") {
-    body = `<p class="lcd-line">Could not load releases: ${rel.message}</p>`;
-  } else if (rel.status === "empty") {
-    body = `
-      <p class="lcd-line">No public releases yet.</p>
-      <p class="lcd-muted">Check back after the first desktop cut is published.</p>
-    `;
-  } else if (rel.status === "ok") {
-    const [latest, ...older] = rel.versions;
-    body = `
-      ${versionBlock(latest, true)}
-      ${older.map((v) => versionBlock(v, false)).join("")}
-    `;
+  const os = state.data.downloadOs;
+  let body: string;
+  if (os === "ios") {
+    body = IOS;
+  } else {
+    const rel = state.data.releases;
+    if (rel.status === "idle" || rel.status === "loading") {
+      body = `<p class="lcd-muted">Loading releases…</p>`;
+    } else if (rel.status === "error") {
+      body = `<p class="lcd-line">Could not load releases: ${rel.message}</p>`;
+    } else if (rel.status === "empty") {
+      body = `
+        <p class="lcd-line">No public releases yet.</p>
+        <p class="lcd-muted">Check back soon.</p>`;
+    } else if (rel.status === "ok") {
+      body = osDownloads(rel.versions[0], os);
+    } else {
+      body = `<p class="lcd-muted">Loading releases…</p>`;
+    }
   }
 
   return `
     <section class="lcd-panel">
       <h1 class="lcd-title">Downloads</h1>
-      <p class="lcd-line">
-        Releases for Windows, macOS, Linux and Android, and the agent node for running an agent.
-        Each OS's release lists every file's checksum in <code>SHA256SUMS</code>.
-      </p>
-
-      <fieldset class="lcd-fieldset">
-        <legend>Unsigned builds — read before install</legend>
-        <p class="lcd-line lcd-signal warn">
-          The Windows, macOS and Linux installers are <strong>not code-signed&nbsp;</strong> and the macOS build is&nbsp;<strong>not notarized</strong>. Your OS may warn or block the first launch —
-          that is expected, not proof the download is corrupt. The Android app is signed.
-        </p>
-        <ul class="lcd-list">
-          <li>
-            <strong>Windows: </strong>SmartScreen / “Windows protected your PC” →
-            <strong>&nbsp;More info&nbsp;</strong> → <strong>&nbsp;Run anyway </strong>(wording may vary).
-          </li>
-          <li>
-            <strong>macOS: </strong>“damaged and can’t be opened” is usually Gatekeeper
-            quarantine. Prefer Finder: drag to Applications, then Control-click /
-            right-click → <strong>Open</strong>&nbsp;→&nbsp;<strong>Open</strong>. Or use&nbsp;<strong>System Settings → Privacy &amp; Security → Open Anyway</strong>&nbsp;after one blocked launch. Full steps on&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="getting-started")>
-              Getting started
-            </button>&nbsp;/&nbsp;<button type="button" class="lcd-linkish" :click=setView(target="faq")>
-              FAQ
-            </button>.
-          </li>
-          <li>
-            <strong>Linux: </strong>mark an AppImage executable
-            (<code>chmod +x</code>) if needed; your desktop may still warn on an
-            untrusted binary.
-          </li>
-          <li>
-            <strong>Android: </strong>open the <code>.apk</code>&nbsp;on the phone; Android asks
-            once to allow installs from your browser or files app. 64-bit ARM phones.
-          </li>
-        </ul>
-      </fieldset>
-
+      <p class="lcd-line">Pick your operating system to get the Society 4 app and, on desktop, the agent node.</p>
+      ${picker(os)}
       ${body}
       <div class="lcd-row">
         <button type="button" class="lcd-ghost" :click=loadReleases()>Refresh</button>
-        <button type="button" class="lcd-ghost" :click=setView(target="getting-started")>
-          Get started
-        </button>
+        <button type="button" class="lcd-ghost" :click=setView(target="getting-started")>Get started</button>
       </div>
     </section>
   `;

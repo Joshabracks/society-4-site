@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  fromVersion,
   groupReleasesByVersion,
   latestNodeRelease,
   nodeAssetOf,
@@ -139,5 +140,17 @@ describe("versions still being published", () => {
     ]);
     expect(versions.map((v) => v.version)).toEqual(["0.5.0"]);
     expect(latestNodeRelease(versions)?.version).toBe("0.5.0");
+  });
+});
+
+describe("the oldest version listed", () => {
+  it("drops versions below it, keeping it and newer ones", () => {
+    const versions = groupReleasesByVersion([
+      release("windows0.6.0", ["Society4-0.6.0-windows-x64.msi"]),
+      release("windows0.5.0", WINDOWS),
+      release("windows0.4.0", ["Society4-0.4.0-windows-x64.msi"]),
+      release("v0.3.1", ["Society4-0.3.1-windows-x64.msi"]),
+    ]);
+    expect(fromVersion(versions, "0.5.0").map((v) => v.version)).toEqual(["0.6.0", "0.5.0"]);
   });
 });

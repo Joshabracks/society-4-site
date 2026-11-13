@@ -1,5 +1,5 @@
 import type { Mode } from "./theme";
-import type { NodePlatform, ReleasesState } from "./releases";
+import type { DownloadOs, NodePlatform, ReleasesState } from "./releases";
 
 export type ViewId =
   | "home"
@@ -45,6 +45,8 @@ export type SiteData = {
   releases: ReleasesState;
   /** The OS the Run an Agent page shows commands for. */
   agentOs: NodePlatform;
+  /** The OS the Downloads page shows files for. */
+  downloadOs: DownloadOs;
 };
 
 /** This visitor's OS, as far as the browser says (Windows otherwise). */
@@ -55,11 +57,26 @@ export function guessOs(): NodePlatform {
   return "windows";
 }
 
+/**
+ * This visitor's device for the Downloads page, phones included (Windows if
+ * the browser doesn't say). iPads ask for the desktop site, so a "Mac" with a
+ * touch screen is taken as iOS.
+ */
+export function guessDownloadOs(): DownloadOs {
+  if (typeof navigator === "undefined") return "windows";
+  const ua = navigator.userAgent;
+  if (/iPhone|iPad|iPod/.test(ua)) return "ios";
+  if (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1) return "ios";
+  if (/Android/.test(ua)) return "android";
+  return guessOs();
+}
+
 export function initialData(mode: Mode): SiteData {
   return {
     view: parseHash(typeof location !== "undefined" ? location.hash : ""),
     mode,
     releases: { status: "idle" },
     agentOs: guessOs(),
+    downloadOs: guessDownloadOs(),
   };
 }

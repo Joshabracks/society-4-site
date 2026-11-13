@@ -582,3 +582,30 @@ button.lcd-code-copy:focus-visible {
   min-width: 0;
   max-width: 100%;
 }
+
+/* The Downloads page's OS picker. */
+.lcd-os-picker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.lcd-os-picker select {
+  font: inherit;
+  font-weight: 700;
+  padding: 8px 12px;
+  min-width: 12rem;
+  max-width: 100%;
+  color: var(--lcd-fg);
+  background: var(--lcd-panel);
+  border: var(--lcd-border) solid var(--lcd-fg);
+  border-radius: 4px;
+  box-shadow: var(--ink-outline-shadow);
+  cursor: pointer;
+}
+
+.lcd-os-picker select:focus-visible {
+  outline: 2px solid var(--lcd-fg);
+  outline-offset: 2px;
+}

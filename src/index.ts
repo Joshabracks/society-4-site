@@ -78,6 +78,13 @@ const methods = {
   setAgentOs: ({ state, os }: MethodCtx) => {
     if (os === "windows" || os === "macos" || os === "linux") state.data.agentOs = os;
   },
+  /** The Downloads page's OS picker. */
+  setDownloadOs: ({ state, event }: MethodCtx) => {
+    const os = (event?.target as HTMLSelectElement | null)?.value;
+    if (os === "windows" || os === "macos" || os === "linux" || os === "android" || os === "ios") {
+      state.data.downloadOs = os;
+    }
+  },
   /** Copy a command block's text, as shown. */
   copyCode: ({ event }: MethodCtx) => {
     const button = (event?.target as Element | null)?.closest("button") ?? null;
