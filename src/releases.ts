@@ -1,4 +1,4 @@
-import { RELEASES_API } from "./config";
+import { MIN_VERSION, RELEASES_API } from "./config";
 
 export type GhAsset = {
   id: number;
@@ -25,6 +25,8 @@ export type GhRelease = {
 };
 
 export type PlatformId = "windows" | "macos" | "linux" | "android";
+/** What the Downloads page offers to pick: the platforms, plus iOS (not built yet). */
+export type DownloadOs = PlatformId | "ios";
 /** The OSes the agent node is built for. */
 export type NodePlatform = "windows" | "macos" | "linux";
 
@@ -258,6 +260,11 @@ export function groupReleasesByVersion(releases: GhRelease[]): VersionRelease[] 
   return versions;
 }
 
+/** Versions at or above `min` (the site lists nothing older than MIN_VERSION). */
+export function fromVersion(versions: VersionRelease[], min: string): VersionRelease[] {
+  return versions.filter((v) => cmpSemverDesc(v.version, min) <= 0);
+}
+
 /** The newest version with agent node archives, if any. */
 export function latestNodeRelease(versions: VersionRelease[]): VersionRelease | null {
   return versions.find((v) => Object.values(v.nodeByPlatform).some((list) => list?.length)) ?? null;
@@ -287,5 +294,5 @@ export function fetchReleases(): Promise<GhRelease[]> {
 
 export async function fetchVersionReleases(): Promise<VersionRelease[]> {
   const raw = await fetchReleases();
-  return groupReleasesByVersion(raw);
+  return fromVersion(groupReleasesByVersion(raw), MIN_VERSION);
 }
